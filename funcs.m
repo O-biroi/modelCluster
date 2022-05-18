@@ -6,13 +6,17 @@ numOfAgents = 100;
 arenaSize = 5; % 
 meanSpeed = 0.1;
 angleInertia = 0.7; % if you walk in a certain direction
-degreePowerLaw = 3; % adjust the distribution of power law, determines the variation of friendliness
+alphaBetaDistribution = 0.5;
+betaBetaDistribution = 0.5;
+%degreePowerLaw = 3; % adjust the distribution of power law, determines the variation of friendliness
 neighborsSpeedFactor = 0.005; % slow down the speed when encounter neighbor % quite decisive for cluster formation
 fieldR = 0.5; % radius of the field of recognition
 numOfSteps = 10000; % number of steps for simulation
 
 agents = generateAgents(numOfAgents, arenaSize, meanSpeed, ...
-    angleInertia, degreePowerLaw, neighborsSpeedFactor);
+        angleInertia, alphaBetaDistribution, betaBetaDistribution, neighborsSpeedFactor);
+
+    %angleInertia, degreePowerLaw, neighborsSpeedFactor);
 xy = [agents.xy];
 temp = [agents.angleWeights];
 color = [temp.neighbors];
@@ -20,7 +24,7 @@ x = xy(1:2:end);
 y = xy(2:2:end);
 h = scatter(x, y, 80, color, 'filled','MarkerFaceAlpha', 0.6);
 colormap(jet)
-col = colorbar
+col = colorbar;
 ylabel(col, 'friendliness')
 xlim([0 arenaSize]);
 ylim([0 arenaSize]);
@@ -36,12 +40,14 @@ end
 
 % function to generate agents
 function [agents] = generateAgents(numOfAgents, arenaSize, meanSpeed, ...
-        angleInertia, degreePowerLaw, neighborsSpeedFactor)
+            angleInertia, alphaBetaDistribution, betaBetaDistribution, neighborsSpeedFactor)
+
+        %angleInertia, degreePowerLaw, neighborsSpeedFactor)
     for i1 = 1:numOfAgents
         agents(i1).xy = rand(1, 2) * arenaSize; % assign random xy axis for each agent
         agents(i1).angle = 2*pi*rand; % assign a random angle of movement
         agents(i1).speed = meanSpeed; % assign a fixed speed of movment
-        angleNeighbors = rand^degreePowerLaw;%abs(randn);%exprnd(0.5); %rand^degreePowerLaw;
+        angleNeighbors = betarnd(alphaBetaDistribution, betaBetaDistribution)%rand^degreePowerLaw;%abs(randn);%exprnd(0.5); %rand^degreePowerLaw;
         agents(i1).angleWeights.neighbors = angleNeighbors; % assign friendliness (tendency to move towards neighbors)
         angleInertia2 = angleInertia * (1 - angleNeighbors); % assign inertia (tendency of keep the same direction)
         agents(i1).angleWeights.inertia = angleInertia2;
